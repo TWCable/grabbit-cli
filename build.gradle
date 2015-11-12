@@ -1,0 +1,67 @@
+buildscript {
+    repositories {
+        maven {
+            url "http://dl.bintray.com/jmoore/java-lib"
+        }
+    }
+    dependencies {
+        classpath 'com.mooregreatsoftware:gradle-defaults:1.0.3'
+    }
+}
+
+plugins {
+    id 'com.jfrog.bintray' version '1.4'
+}
+
+group = 'com.twcable.grabbit'
+description = 'Command line interface for interacting with the Grabbit Client'
+
+apply plugin: 'groovy'
+
+apply plugin: 'application'
+apply plugin: 'groovy'
+mainClassName = "com.twcable.grabbit.cli.Grabbit"
+
+dependencies {
+    compile "org.codehaus.groovy:groovy-all:2.4.3"
+    compile 'commons-cli:commons-cli:1.2'
+
+    // @Nonnull @Nullable etc annotations
+    compile "com.google.code.findbugs:jsr305:2.0.0"
+
+    testCompile "org.spockframework:spock-core:1.0-groovy-2.4", {
+        exclude group: 'org.codehaus.groovy', module: 'groovy-all'
+        exclude group: 'org.hamcrest', module: 'hamcrest-core'
+    }
+}
+
+bintray {
+    pkg {
+        licenses = ['Apache-2.0']
+        attributes = ['plat': ['jvm', 'aem', 'grabbit', 'cq']]
+    }
+}
+
+apply plugin: 'com.mooregreatsoftware.defaults'
+
+defaults {
+    compatibilityVersion = '1.7'
+
+    id = 'twcable'
+
+    orgName = 'Time Warner Cable'
+    orgUrl = 'http://www.timewarnercable.com'
+
+    bintrayRepo = 'aem'
+    bintrayLabels = ['grabbit', 'groovy', 'aem']
+
+    developers = [
+        [id: 'jmoore', name: 'Jim Moore', email: 'moore.jim@gmail.com'],
+    ]
+
+    copyrightYears = '2014-2015'
+}
+
+wrapper {
+    gradleVersion = 2.8
+}

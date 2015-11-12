@@ -1,0 +1,4 @@
+#!/bin/sh
+
+./gradlew startScripts
+build/install/grabbit-cli/bin/grabbit-cli $@
