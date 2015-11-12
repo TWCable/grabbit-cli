@@ -2,6 +2,8 @@
 
 This script starts and monitors a Grabbit content sync.
 
+[![Stories in Ready](https://badge.waffle.io/TWCable/grabbit-cli.png?label=ready&title=Ready)](https://waffle.io/TWCable/grabbit-cli) 
+
 # Prerequisites #
 
 You must first install the Grabbit AEM package on any instance you wish to sync content to (i.e. a Grabbit client).
