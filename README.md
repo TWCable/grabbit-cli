@@ -14,7 +14,7 @@ From the tools/grabbit-start-monitor root:
 `run -h` to view list of options:
 
 ```shell
-usage: groovy Grabbit -[h|s|sm|m] [grabbit-json-file] [env-json-file] [env] [grabbit-ids-file]
+usage: run -[h|s|sm|m] [grabbit-json-file] [env-json-file] [env] [grabbit-ids-file]
  -h,--help                                                                 Show usage information
  -m,--monitor <[env-json-file] [environment] [grabbit-ids-file]>           Monitor grabbit
  -s,--start <[grabbit-json-file] [env-json-file] [environment]>            Start grabbit
@@ -24,14 +24,22 @@ usage: groovy Grabbit -[h|s|sm|m] [grabbit-json-file] [env-json-file] [env] [gra
 Example for syncing to your local author:
 
 ```shell
-run -sm config/grabbit-author.json config/localhost.json localhost
+run -sm grabbit-author.json localhost.json localhost
 ```
 
 Example for syncing to your local publish:
 
 ```shell
-run -sm config/grabbit-publish.json config/localhost.json localhost
+run -sm cgrabbit-publish.json localhost.json localhost
 ```
+
+# Releasing #
+
+```shell
+./gradlew release -Prelease.scope=patch -Prelease.stage=final
+```
+
+See [the release plugin documentation](https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins%201.x)
 
 # API #
 
