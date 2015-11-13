@@ -27,7 +27,7 @@ class Grabbit {
 
     static void main(String[] args) {
 
-        def cli = new CliBuilder(usage: 'groovy Grabbit -[h|s|sm|m] [grabbit-json-file] [env-json-file] [env] [grabbit-ids-file]', width: 200)
+        def cli = new CliBuilder(usage: "-[h|s|sm|m] [grabbit-json-file] [env-json-file] [env] [grabbit-ids-file]", width: 200)
         cli.with {
             h longOpt: 'help', 'Show usage information'
             s longOpt: 'start', args: 3, argName: '[grabbit-json-file] [env-json-file] [environment]', 'Start grabbit'

@@ -11,6 +11,7 @@ buildscript {
 
 plugins {
     id 'com.jfrog.bintray' version '1.4'
+    id "us.kirchmeier.capsule" version "1.0.2"
 }
 
 group = 'com.twcable.grabbit'
@@ -18,16 +19,9 @@ description = 'Command line interface for interacting with the Grabbit Client'
 
 apply plugin: 'groovy'
 
-apply plugin: 'application'
-apply plugin: 'groovy'
-mainClassName = "com.twcable.grabbit.cli.Grabbit"
-
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:2.4.3"
+    compile "org.codehaus.groovy:groovy-all:2.4.5"
     compile 'commons-cli:commons-cli:1.2'
-
-    // @Nonnull @Nullable etc annotations
-    compile "com.google.code.findbugs:jsr305:2.0.0"
 
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4", {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
@@ -35,14 +29,9 @@ dependencies {
     }
 }
 
-bintray {
-    pkg {
-        licenses = ['Apache-2.0']
-        attributes = ['plat': ['jvm', 'aem', 'grabbit', 'cq']]
-    }
-}
-
 apply plugin: 'com.mooregreatsoftware.defaults'
+
+defaultTasks 'build'
 
 defaults {
     compatibilityVersion = '1.7'
@@ -53,7 +42,7 @@ defaults {
     orgUrl = 'http://www.timewarnercable.com'
 
     bintrayRepo = 'aem'
-    bintrayLabels = ['grabbit', 'groovy', 'aem']
+    bintrayLabels = ['grabbit', 'aem']
 
     developers = [
         [id: 'jmoore', name: 'Jim Moore', email: 'moore.jim@gmail.com'],
@@ -61,6 +50,37 @@ defaults {
 
     copyrightYears = '2014-2015'
 }
+
+
+task fatCapsule(type: FatCapsule) {
+    archiveName = "grabbit-cli-${version}"
+
+    applicationClass "com.twcable.grabbit.cli.Grabbit"
+
+    capsuleManifest {
+        minJavaVersion = defaults.compatibilityVersion
+    }
+
+    manifest = jar.manifest
+
+    reallyExecutable
+}
+
+assemble.dependsOn fatCapsule
+
+
+bintray {
+    filesSpec {
+        from fatCapsule.archivePath
+        into '/bin'
+    }
+
+    pkg {
+        licenses = ['Apache-2.0']
+        attributes = ['plat': ['jvm', 'aem', 'grabbit', 'cq']]
+    }
+}
+
 
 wrapper {
     gradleVersion = 2.8
