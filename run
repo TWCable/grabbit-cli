@@ -1,4 +1,0 @@
-#!/bin/sh
-
-./gradlew installDist
-build/install/grabbit-cli/bin/grabbit-cli $@
