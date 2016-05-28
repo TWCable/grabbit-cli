@@ -1,0 +1,103 @@
+= Grabbit Command Line Interface
+:toc:
+:toc-placement!:
+
+toc::[]
+
+== Description
+
+This script starts and monitors a Grabbit content sync.
+
+https://waffle.io/TWCable/grabbit-cli[image:https://badge.waffle.io/TWCable/grabbit-cli.png?label=ready&title=Ready[Stories
+in Ready]]
+
+== Usage
+
+=== Prerequisites
+
+You must first install the Grabbit AEM package on any instance you wish
+to sync content to (i.e. a Grabbit client). You can download the latest
+package from bintray: https://bintray.com/twcable/aem/Grabbit/view#files
+See https://github.com/TWCable/grabbit[the Grabbit project page for more information].
+
+This currently shells out to https://curl.haxx.se/[curl], so it is assumed that is installed and on the PATH.
+It typically is on most *nix systems, but https://github.com/TWCable/grabbit-cli/issues/4[there is an issue to
+remove that dependency].
+
+Finally, the distributed binaries are self-executing Java programs (thanks http://www.capsule.io/[to the awesome
+Capsule packager]). The only requirement is that you have the Java 7+ runtime installed.
+
+
+=== Running
+
+First, either download the binary from https://bintray.com/twcable/aem/grabbit-cli/view#files/bin , or clone this repository and build it yourself with `./gradlew`.
+(The binaries will be in `build/libs/`) The file will be named `grabbit-cli-${version}` 
+
+For the instructions below, assuming that you've renamed the binary you chose to `grabbit-cli`:
+
+(If you downloaded the file from BinTray, you may need to set the execute bit on it first to use on a *nix system: `chmod u+x grabbit-cli`)
+
+Run `grabbit-cli -h` to view list of options:
+
+```shell
+
+usage: grabbit-cli -[h|s|sm|m] [grabbit-json-file] [env-json-file] [env] [grabbit-ids-file]
+
+  -h,--help                                                                 Show usage information
+  -m,--monitor <[env-json-file] [environment] [grabbit-ids-file]>           Monitor grabbit
+  -s,--start <[grabbit-json-file] [env-json-file] [environment]>            Start grabbit
+  -sm,--start-monitor <[grabbit-json-file] [env-json-file] [environment]>   Start and monitor grabbit
+```
+
+Example for syncing to your local author:
+
+```shell
+grabbit-cli -sm grabbit-author.json localhost.json localhost
+```
+
+Example for syncing to your local publish:
+
+```shell
+grabbit-cli -sm grabbit-publish.json localhost.json localhost
+```
+
+
+[NOTE]
+====
+For now, check the Grabbit documentation for the format of the environment/configuration files.
+
+There is https://github.com/TWCable/grabbit-cli/issues/7[a feature request to better document that].
+====
+
+
+== Development
+
+=== API
+
+https://twcable.github.io/grabbit-cli/docs/groovydoc/
+
+=== Releasing
+
+```shell
+./gradlew release -Prelease.scope=patch -Prelease.stage=final
+```
+
+See
+https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins%201.x[the
+release plugin documentation]
+
+== LICENSE
+
+Copyright 2014-2016 Time Warner Cable, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License"); you may
+not use this file except in compliance with the License. You may obtain
+a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
