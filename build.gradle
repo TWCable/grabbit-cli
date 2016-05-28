@@ -4,8 +4,9 @@ buildscript {
             url "http://dl.bintray.com/jmoore/java-lib"
         }
     }
+    //noinspection GroovyAssignabilityCheck
     dependencies {
-        classpath 'com.mooregreatsoftware:gradle-defaults:1.0.3'
+        classpath 'com.mooregreatsoftware:gradle-defaults:1.0.6'
     }
 }
 
@@ -19,8 +20,9 @@ description = 'Command line interface for interacting with the Grabbit Client'
 
 apply plugin: 'groovy'
 
+//noinspection GroovyAssignabilityCheck
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:2.4.5"
+    compile "org.codehaus.groovy:groovy-all:2.4.6"
     compile 'commons-cli:commons-cli:1.2'
 
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4", {
@@ -81,7 +83,7 @@ bintray {
     }
 }
 
-
+//noinspection GroovyAssignabilityCheck
 wrapper {
-    gradleVersion = 2.8
+    gradleVersion = 2.13
 }
