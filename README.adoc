@@ -20,10 +20,6 @@ to sync content to (i.e. a Grabbit client). You can download the latest
 package from bintray: https://bintray.com/twcable/aem/Grabbit/view#files
 See https://github.com/TWCable/grabbit[the Grabbit project page for more information].
 
-This currently shells out to https://curl.haxx.se/[curl], so it is assumed that is installed and on the PATH.
-It typically is on most *nix systems, but https://github.com/TWCable/grabbit-cli/issues/4[there is an issue to
-remove that dependency].
-
 Finally, the distributed binaries are self-executing Java programs (thanks http://www.capsule.io/[to the awesome
 Capsule packager]). The only requirement is that you have the Java 7+ runtime installed.
 

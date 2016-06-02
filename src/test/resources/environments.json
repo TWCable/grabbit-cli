@@ -1,0 +1,33 @@
+{
+  "filterxml-paths": [
+    "/apps/cq/personalization",
+    "/apps/cq/ui",
+  ],
+  "cache-paths": [
+    "/apps",
+    "/bin",
+    "/content",
+    "/en",
+    "/etc",
+    "/libs",
+    "/services"
+  ],
+  "localhost": {
+    "authors": {
+      "127.0.0.1": "4502"
+    },
+    "publishers": {
+      "127.0.0.1": "4503"
+    },
+    "dispatchers": [
+      "127.0.0.1"
+    ],
+    "cnames": [
+      "ctmgr"
+    ],
+    "domainName": "",
+    "protocol": "http",
+    "username": "admin",
+    "password": "admin"
+  }
+}

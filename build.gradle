@@ -22,12 +22,12 @@ apply plugin: 'groovy'
 
 //noinspection GroovyAssignabilityCheck
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:2.4.6"
-    compile 'commons-cli:commons-cli:1.2'
+    compile 'commons-cli:commons-cli:1.3.1'
+    compile 'org.yaml:snakeyaml:1.17'
 
+    testCompile "org.codehaus.groovy:groovy-all:2.4.6"
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4", {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-        exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 }
 
@@ -36,7 +36,7 @@ apply plugin: 'com.mooregreatsoftware.defaults'
 defaultTasks 'build'
 
 defaults {
-    compatibilityVersion = '1.7'
+    compatibilityVersion = '1.8'
 
     id = 'twcable'
 
@@ -57,7 +57,7 @@ defaults {
 task fatCapsule(type: FatCapsule) {
     archiveName = "grabbit-cli-${version}"
 
-    applicationClass "com.twcable.grabbit.cli.Grabbit"
+    applicationClass "com.twcable.grabbit.cli.GrabbitCli"
 
     capsuleManifest {
         minJavaVersion = defaults.compatibilityVersion
