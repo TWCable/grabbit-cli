@@ -4,39 +4,61 @@ buildscript {
             url "http://dl.bintray.com/jmoore/java-lib"
         }
     }
-    //noinspection GroovyAssignabilityCheck
+
     dependencies {
         classpath 'com.mooregreatsoftware:gradle-defaults:1.0.6'
+        classpath 'ru.vyarus:gradle-quality-plugin:1.3.0'
     }
 }
 
 plugins {
     id 'com.jfrog.bintray' version '1.4'
     id "us.kirchmeier.capsule" version "1.0.2"
+
+    // jruby plugin needed for asciidoctor-diagram gem.
+    id 'com.github.jruby-gradle.base' version '1.2.1'
 }
 
 group = 'com.twcable.grabbit'
 description = 'Command line interface for interacting with the Grabbit Client'
 
+// need Groovy instead of just Java for Spock testing
 apply plugin: 'groovy'
 
-//noinspection GroovyAssignabilityCheck
 dependencies {
-    compile "org.codehaus.groovy:groovy-all:2.4.6"
-    compile 'commons-cli:commons-cli:1.2'
+    // command-line argument parsing
+    compile 'commons-cli:commons-cli:1.3.1'
 
+    // YAML/JSON parsing
+    compile 'org.yaml:snakeyaml:1.17'
+
+    // The core Reactive Streams interfaces
+    // http://www.reactive-streams.org/
+    compile "org.reactivestreams:reactive-streams:1.0.0"
+
+    // Implementation of Reactive Streams
+    // http://projectreactor.io/
+    compile "io.projectreactor:reactor-core:2.5.0.M4"
+
+    // Spock testing
+    // http://docs.spockframework.org/
+    testCompile "org.codehaus.groovy:groovy-all:2.4.6"
     testCompile "org.spockframework:spock-core:1.0-groovy-2.4", {
         exclude group: 'org.codehaus.groovy', module: 'groovy-all'
-        exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }
 }
 
 apply plugin: 'com.mooregreatsoftware.defaults'
 
+apply from: "gradle/lombok.gradle"
+apply from: "gradle/quality.gradle"
+apply from: "gradle/compiler.gradle"
+apply from: "gradle/docs.gradle"
+
 defaultTasks 'build'
 
 defaults {
-    compatibilityVersion = '1.7'
+    compatibilityVersion = '1.8'
 
     id = 'twcable'
 
@@ -53,11 +75,10 @@ defaults {
     copyrightYears = '2014-2016'
 }
 
-
 task fatCapsule(type: FatCapsule) {
     archiveName = "grabbit-cli-${version}"
 
-    applicationClass "com.twcable.grabbit.cli.Grabbit"
+    applicationClass "com.twcable.grabbit.tools.cli.GrabbitCli"
 
     capsuleManifest {
         minJavaVersion = defaults.compatibilityVersion
@@ -83,7 +104,45 @@ bintray {
     }
 }
 
-//noinspection GroovyAssignabilityCheck
+
+idea.project.ipr {
+    withXml { provider ->
+        def inspections = provider.node.component
+            .find { it.@name == 'InspectionProjectProfileManager' }
+
+        if (!inspections) {
+            inspections = provider.node.appendNode 'component', [name: "InspectionProjectProfileManager"]
+            inspections.appendNode 'option', [name: "PROJECT_PROFILE", value: "Project Default"]
+            inspections.appendNode 'option', [name: "USE_PROJECT_PROFILE", value: true]
+            inspections.appendNode 'version', [value: "1.0"]
+        }
+
+        def inspectionsProfile = inspections.get("profile")
+
+        if (!inspectionsProfile) {
+            inspectionsProfile = inspections.appendNode 'profile', [version: "1.0"]
+            inspectionsProfile.appendNode 'option', [name: "myName", value: "Project Default"]
+            inspectionsProfile.appendNode 'option', [name: "myLocal", value: "true"]
+        }
+
+        def inspectionTool = inspectionsProfile.inspection_tool
+
+        if (!inspectionTool) {
+            inspectionsProfile.appendNode 'inspection_tool', [class: "GroovyAssignabilityCheck", enabled: false, level: "WARNING", enabled_by_default: false]
+        }
+        else {
+            def groovyAssignabilityCheck = inspectionTool.find { it.@class == 'GroovyAssignabilityCheck' }
+            if (!groovyAssignabilityCheck) {
+                inspectionsProfile.add new NodeBuilder().inspection_tool(class: "GroovyAssignabilityCheck", enabled: false, level: "WARNING", enabled_by_default: false)
+                //inspectionsProfile.add new NodeBuilder().inspection_tool(class: "GroovyAssignabilityCheck", enabled: false)
+            }
+            else {
+                groovyAssignabilityCheck.@enabled = false
+            }
+        }
+    }
+}
+
 wrapper {
     gradleVersion = 2.13
 }

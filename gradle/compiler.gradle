@@ -1,0 +1,71 @@
+/*
+ * Hack around a bug in JAVAC prior to u45, causing a conflict with Checker Framework
+ */
+def compilerArgs = [
+    '-processor', 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor,org.checkerframework.checker.nullness.NullnessChecker,org.checkerframework.checker.regex.RegexChecker',
+    '-processorpath', "${configurations.checkerFramework.asPath}:${configurations.lombok.asPath}",
+    // comment to turn Checker Framework warnings into errors
+    '-Awarns',
+    "-AskipUses=javaslang",
+    "-Alint=-cast:unsafe",
+    "-Xlint:unchecked",
+    "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}"
+]
+def javaVer = System.getProperty("java.version")
+logger.info "Java Version: ${javaVer}"
+def matcher = javaVer =~ /.*_(\d+)$/
+if (matcher.matches()) {
+    def updateVer = Integer.parseInt(matcher.group(1))
+    if (updateVer < 45) {
+        logger.warn "Full type checking is broken in JDK-8 versions prior to update 45. You are currently running ${updateVer}. Please upgrade."
+        compilerArgs.remove(0) // remove the "-processor"
+        compilerArgs.remove(0) // remove the -processor arg
+    }
+}
+else {
+    logger.warn "Could not determine the update version for Java: ${javaVer}"
+}
+
+tasks.withType(JavaCompile).all { JavaCompile compile ->
+    compile.options.compilerArgs = compilerArgs
+}
+
+idea.project.ipr {
+    withXml { provider ->
+        def annotationProcessing = provider.node.component
+            .find { it.@name == 'CompilerConfiguration' }
+            .annotationProcessing
+
+        def profile = new NodeBuilder().profile(default: true, name: "CheckerFrameworkAndLombok", enabled: true) {
+            option(name: "warns", value: "true")
+            // option(name: "skipUses", value: "javaslang")
+            option(name: "lint", value: "-cast:unsafe")
+            // TODO consolidate with Gradle javac configuration
+            processor(name: 'lombok.launch.AnnotationProcessorHider$AnnotationProcessor')
+            processor(name: "org.checkerframework.checker.nullness.NullnessChecker")
+            // processor(name: "org.checkerframework.checker.regex.RegexChecker")
+
+            processorPath(useClasspath: false) {
+                configurations.checkerFramework.files.each { file ->
+                    entry(name: file.toString())
+                }
+                configurations.lombok.files.each { file ->
+                    entry(name: file.toString())
+                }
+            }
+
+            // TODO generate this list
+            module(name: "grabbit-cli")
+        }
+
+        annotationProcessing[0].append profile
+
+        def javacSettings = new NodeBuilder().component(name: "JavacSettings") {
+            configurations.checkerFrameworkAnnotatedJDK.files.each { file ->
+                option(name: "ADDITIONAL_OPTIONS_STRING", value: "-Xbootclasspath/p:${file.toString()}")
+            }
+        }
+
+        provider.node.append javacSettings
+    }
+}

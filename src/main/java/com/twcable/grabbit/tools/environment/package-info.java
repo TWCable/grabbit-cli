@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.twcable.grabbit.cli
 
-class ThreadedStreamProcessor extends Thread {
-    InputStream inputStream
-    def output = []
-
-
-    ThreadedStreamProcessor(InputStream inputStream) {
-        this.inputStream = inputStream
-    }
-
-
-    public void run() {
-        this.inputStream.eachLine {
-            output.add("$it")
-        }
-    }
-
-
-    def getOutput() {
-        return output
-    }
-}
+/**
+ * Description of the environments that the Grabbit Client may run in.
+ *
+ * The principle interfaces are {@link com.twcable.grabbit.tools.environment.Environment} and
+ * {@link com.twcable.grabbit.tools.environment.HostInfo}.
+ */
+package com.twcable.grabbit.tools.environment;

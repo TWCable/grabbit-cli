@@ -1,0 +1,13 @@
+configurations {
+    //noinspection GroovyAssignabilityCheck
+    lombok {
+        description = 'The Checker Framework: custom plugable types for Java'
+    }
+}
+
+def lombokVersion = '1.16.8'
+
+dependencies {
+    compileOnly "org.projectlombok:lombok:${lombokVersion}"
+    lombok "org.projectlombok:lombok:${lombokVersion}"
+}

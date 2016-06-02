@@ -1,0 +1,20 @@
+configurations {
+    //noinspection GroovyAssignabilityCheck
+    checkerFrameworkAnnotatedJDK {
+        description = 'a copy of JDK classes with Checker Framework type qualifiers inserted'
+    }
+    //noinspection GroovyAssignabilityCheck
+    checkerFramework {
+        description = 'The Checker Framework: custom plugable types for Java'
+    }
+}
+
+def checkerFrameworkVersion = '2.0.1'
+
+dependencies {
+    compileOnly "org.checkerframework:checker-qual:${checkerFrameworkVersion}"
+
+    checkerFrameworkAnnotatedJDK "org.checkerframework:jdk8:${checkerFrameworkVersion}"
+
+    checkerFramework "org.checkerframework:checker:${checkerFrameworkVersion}"
+}

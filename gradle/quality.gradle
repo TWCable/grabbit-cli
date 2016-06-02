@@ -1,0 +1,34 @@
+// Quality plugins
+apply plugin: 'ru.vyarus.quality' // https://github.com/xvik/gradle-quality-plugin
+apply plugin: 'jdepend'
+
+dependencies {
+    compile "com.google.code.findbugs:annotations:3.0.1"
+
+    // the original jdepend is abandoned and doesn't support JDK8. This fork does, however
+    // Gotta love open-source's resiliency :-)
+    jdepend "guru.nidi:jdepend:2.9.5"
+    jdepend "org.apache.ant:ant-jdepend:1.9.6"
+}
+
+// the FindBugs annotation classes are only needed for compiling: there's no runtime dependency
+configurations.runtime.exclude group: 'com.google.code.findbugs'
+
+quality {
+    strict = false
+}
+
+apply from: "gradle/checker.gradle"
+
+//tasks.withType(FindBugs) {
+//    reports {
+//        xml.enabled false
+//        html.enabled true
+////        html.stylesheet resources.text.fromFile('config/xsl/findbugs-custom.xsl')
+//    }
+//}
+
+jdependMain.reports {
+    xml.enabled false
+    text.enabled true
+}

@@ -1,0 +1,61 @@
+
+There are three primary "modes":
+
+== Start Jobs
+
+[plantuml]
+....
+hide footbox
+
+actor "Command Line"
+"Command Line" -> GrabbitCli : "-s grabbit-job-config-file\nenv-config-file envName"
+GrabbitCli -> GrabbitCli : start = true, monitor = false
+note left: create CliOptions
+GrabbitCli -> JobStarter : //jobsConfigFileReader//, //hosts//
+activate JobStarter
+JobStarter -> GrabbitCli : events of HostAndJobIds
+deactivate JobStarter
+GrabbitCli -> "Command Line" : host and job ids on STDOUT
+....
+
+== Start Jobs and Monitor Them
+
+[plantuml]
+....
+hide footbox
+
+actor "Command Line"
+"Command Line" -> GrabbitCli : "-sm grabbit-job-config-file\nenv-config-file envName"
+GrabbitCli -> GrabbitCli : start = true, monitor = true
+note left: create CliOptions
+GrabbitCli -> JobStarter : //jobsConfigFileReader//, //hosts//
+activate JobStarter
+JobStarter -> GrabbitCli : events of HostAndJobIds
+deactivate JobStarter
+GrabbitCli -> PollingJobMonitor : monitor
+note left: includes the hosts and\njob ids from **JobStarter**
+activate PollingJobMonitor
+loop there are RUNNING jobs <size:18><&timer></size>
+    PollingJobMonitor -> GrabbitCli : events of MonitoringEvent
+    GrabbitCli -> "Command Line" : MonitoringEvents to STDOUT
+end
+....
+
+== Monitor Previously Started Jobs
+
+[plantuml]
+....
+hide footbox
+
+actor "Command Line"
+"Command Line" -> GrabbitCli : "-m grabbit-job-config-file\nenv-config-file job-ids-cache-file"
+GrabbitCli -> GrabbitCli : start = false, monitor = true
+note left: create CliOptions
+GrabbitCli -> PollingJobMonitor : monitor
+note left: includes the hosts and\njob ids from cache-file
+activate PollingJobMonitor
+loop there are RUNNING jobs <size:18><&timer></size>
+    PollingJobMonitor -> GrabbitCli : events of MonitoringEvent
+    GrabbitCli -> "Command Line" : MonitoringEvents to STDOUT
+end
+....

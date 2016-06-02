@@ -1,0 +1,51 @@
+= Grabbit CLI
+:toc:
+:toc-placement!:
+
+toc::[]
+
+== Run Modes
+
+include::doc/cli-interaction.adoc[]
+
+
+== Design
+
+=== General
+
+The code should be as strongly typed as possible, making it clear through its design how the integration points are expected to interact.
+
+==== Reactive Streams
+
+The http://www.reactive-streams.org/[Reactive Streams] API is being used to reflect the asynchronous nature of communication with the server.
+However, in the currently implementation, its usage is highly synchronous.
+
+When/if this migrates to JDK 9, this will likely change to use the
+http://download.java.net/java/jdk9/docs/api/java/util/concurrent/Flow.html[standard Flow interfaces].
+
+==== Checker Framework
+
+This uses the http://types.cs.washington.edu/checker-framework/[Checker Framework] to add much better type checking
+(including making the use of `null` actually safe and useful).
+
+There are no runtime implications (besides safer code).
+
+==== Checker Framework
+
+This uses https://projectlombok.org/features/[Project Lombok] to get rid of massive amounts of Java boilerplate.
+
+There are no runtime implications (besides safer code). When developing you probably want to use the "Lombok" plugin
+for your IDE, but it's not required. The Gradle `idea` task will take care of making sure everything is "hooked up"
+correctly for IntelliJ IDEA.
+
+
+== Releasing
+
+```shell
+./gradlew release -Prelease.scope=patch -Prelease.stage=final
+```
+
+See
+https://github.com/ajoberstar/gradle-git/wiki/Release%20Plugins%201.x[the
+release plugin documentation]
+

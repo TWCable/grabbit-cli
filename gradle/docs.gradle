@@ -1,0 +1,45 @@
+configurations {
+    asciidoclet
+}
+
+dependencies {
+    asciidoclet 'org.asciidoctor:asciidoclet:1.5.4'
+
+    // Define dependency on asciidoctor-diagram Ruby gem.
+    gems 'rubygems:asciidoctor-diagram:1.4.0'
+}
+
+javadoc {
+    options {
+        docletpath = configurations.asciidoclet.files.asType(List)
+        doclet = 'org.asciidoctor.Asciidoclet'
+        addStringOption "-base-dir", projectDir.toString()
+
+        // We can add Asciidoc document attributes and use them
+        // in our Javadoc comments. E.g. {projectName}.
+        def attributes = [projectName   : project.name,
+                          projectVersion: project.version]
+
+        // Configure Asciidoclet to use asciidoctor-diagram gem.
+        addStringOption '-require', 'asciidoctor-diagram'
+        addStringOption '-gem-path', jrubyPrepare.outputDir.absolutePath
+        // Include generated diagram inline.
+        attributes['data-uri'] = ''
+
+        // Combine document attributes with key/value pairs separated
+        // by a comma. These are the document attributes passed
+        // on to Asciidoctor.
+        addStringOption '-attribute', attributes*.toString().join(',')
+
+        // Overview document can also be a Asciidoctor document.
+        overview = 'src/main/javadoc/overview.adoc'
+    }
+}
+
+// Download required gems. Only when we need gems in our Javadoc.
+javadoc.dependsOn jrubyPrepare
+
+javadoc.doLast {
+    // cleanup tmp files created by the vizualization plugin
+    fileTree(dir: projectDir, includes: ["*.png", "*.png.cache"]).each { it.delete() }
+}

@@ -1,0 +1,19 @@
+{
+  "clientNodeType": "publish",
+  "serverUsername": "admin",
+  "serverPassword": "test-admin",
+  "serverHost": "test-aem.test.com",
+  "serverPort": 4503,
+  "deltaContent": true,
+  "pathConfigurations": [
+    {
+      "path": "/content/site",
+      "excludePaths": [
+        "en/UAT"
+      ]
+    },
+    {
+      "path": "/content/modals"
+    }
+  ]
+}
