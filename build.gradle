@@ -79,16 +79,36 @@ defaults {
     copyrightYears = '2014-2016'
 }
 
+/*
+ * Hack around a bug in JAVAC prior to u45, causing a conflict with Checker Framework
+ */
+def compilerArgs = [
+    '-processor', 'org.checkerframework.checker.nullness.NullnessChecker,org.checkerframework.checker.regex.RegexChecker',
+    '-processorpath', "${configurations.checkerFramework.asPath}",
+    // comment to turn Checker Framework warnings into errors
+    '-Awarns',
+    "-AskipUses=javaslang",
+    "-Alint=-cast:unsafe",
+    "-Xlint:unchecked",
+    "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}"
+]
+def javaVer = System.getProperty("java.version")
+logger.info "Java Version: ${javaVer}"
+def matcher = javaVer =~ /.*_(\d+)$/
+if (matcher.matches()) {
+    def updateVer = Integer.parseInt(matcher.group(1))
+    if (updateVer < 45) {
+        logger.warn "Full type checking is broken in JDK-8 versions prior to update 45. You are currently running ${updateVer}. Please upgrade."
+        compilerArgs.remove(0) // remove the "-processor"
+        compilerArgs.remove(0) // remove the -processor arg
+    }
+}
+else {
+    logger.warn "Could not determine the update version for Java: ${javaVer}"
+}
+
 tasks.withType(JavaCompile).all { JavaCompile compile ->
-    compile.options.compilerArgs = [
-        '-processor', 'org.checkerframework.checker.nullness.NullnessChecker,org.checkerframework.checker.regex.RegexChecker',
-        '-processorpath', "${configurations.checkerFramework.asPath}",
-        // comment to turn Checker Framework warnings into errors
-        '-Awarns',
-        "-AskipUses=javaslang",
-        "-Alint=-cast:unsafe",
-        "-Xbootclasspath/p:${configurations.checkerFrameworkAnnotatedJDK.asPath}"
-    ]
+    compile.options.compilerArgs = compilerArgs
 }
 
 task fatCapsule(type: FatCapsule) {
@@ -133,7 +153,7 @@ idea.project.ipr {
             option(name: "lint", value: "-cast:unsafe")
             // TODO consolidate with Gradle javac configuration
             processor(name: "org.checkerframework.checker.nullness.NullnessChecker")
-            processor(name: "org.checkerframework.checker.regex.RegexChecker")
+//            processor(name: "org.checkerframework.checker.regex.RegexChecker")
 
             processorPath(useClasspath: false) {
                 configurations.checkerFramework.files.each { file ->

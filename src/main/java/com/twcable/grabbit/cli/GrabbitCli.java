@@ -154,6 +154,7 @@ public class GrabbitCli {
 
     private static Map<String, ?> getEnv(String envJsonFile, String environment) throws FileNotFoundException {
         final Map<String, ?> json = getJsonConfig(envJsonFile);
+        @SuppressWarnings("unchecked")
         final Map<String, ?> env = (Map<String, ?>)json.get(environment);
         if (env == null)
             throw new IllegalArgumentException("Can not find \"" + environment + "\" in \"" + envJsonFile + "\"");
