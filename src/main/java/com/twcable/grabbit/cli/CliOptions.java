@@ -22,6 +22,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 import java.util.List;
 
@@ -29,13 +30,13 @@ import java.util.List;
 public class CliOptions {
     public final boolean start;
     public final boolean monitor;
-    public final String grabbitConfFile;
+    public final @Nullable String grabbitConfFile;
     public final String envConfFile;
     public final String environmentName;
-    public final String idsFile;
+    public final @Nullable String idsFile;
 
 
-    private CliOptions(boolean start, boolean monitor, String grabbitConfFile, String envConfFile, String environmentName, String idsFile) {
+    private CliOptions(boolean start, boolean monitor, @Nullable String grabbitConfFile, String envConfFile, String environmentName, @Nullable String idsFile) {
         this.start = start;
         this.monitor = monitor;
         this.grabbitConfFile = grabbitConfFile;
@@ -45,7 +46,7 @@ public class CliOptions {
     }
 
 
-    static CliOptions create(String[] args) {
+    static @Nullable CliOptions create(String[] args) {
         Option help = new Option("h", "help", false, "Show usage information");
         Option start = new Option("s", "start", false, "Start Grabbit");
         Option monitor = new Option("m", "monitor", false, "Monitor Grabbit");

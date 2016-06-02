@@ -15,6 +15,9 @@
  */
 package com.twcable.grabbit.cli;
 
+import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.checkerframework.checker.regex.qual.Regex;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.BufferedInputStream;
@@ -51,7 +54,7 @@ import static com.twcable.grabbit.cli.Utils.throwSoft;
 @SuppressWarnings({"WeakerAccess", "RedundantTypeArguments"})
 public class GrabbitCli {
     private static final int POLLING_TIME = Integer.parseInt(System.getProperty("pollTime", "15000"));
-    private static final Pattern JOB_IDS_PATTERN = Pattern.compile("^\\s*\\[(?<jobIds>[\\d,\\s]*)\\]\\s*$", Pattern.MULTILINE);
+    private static final Pattern JOB_IDS_PATTERN = Pattern.compile((@Regex(1) String)"^\\s*\\[(?<jobIds>[\\d,\\s]*)\\]\\s*$", Pattern.MULTILINE);
 
 
     public static void main(String[] args) throws IOException {
@@ -66,10 +69,10 @@ public class GrabbitCli {
     @SuppressWarnings("RedundantCast")
     public static void run(CliOptions options) throws IOException {
         if (options.start) {
-            startGrabbit(options.grabbitConfFile, options.envConfFile, options.environmentName, options.monitor);
+            startGrabbit((@NonNull String)options.grabbitConfFile, options.envConfFile, options.environmentName, options.monitor);
         }
         else {
-            monitorGrabbit(options.envConfFile, options.environmentName, new File(options.idsFile));
+            monitorGrabbit(options.envConfFile, options.environmentName, new File((@NonNull String)options.idsFile));
         }
     }
 
@@ -95,7 +98,7 @@ public class GrabbitCli {
     }
 
 
-    private static String domainName(Map<String, ?> env) {
+    private static @Nullable String domainName(Map<String, ?> env) {
         return (env.get("domainName") != null && !env.get("domainName").toString().trim().isEmpty()) ?
             (String)env.get("domainName") : null;
     }
@@ -107,13 +110,13 @@ public class GrabbitCli {
 
 
     private static void startJob(String grabbitJson, Map<String, ?> env, FileWriter jobIdsWriter,
-                                 String domainName, String hostname, String portStr, boolean monitor) {
+                                 @Nullable String domainName, String hostname, String portStr, boolean monitor) {
         final String host = (domainName != null) ? (hostname + "." + domainName) : hostname;
 
         final String output;
         final URL clientUrl, baseUrl;
         try {
-            final String protocol = (String)env.get("protocol");
+            final String protocol = (@NonNull String)env.get("protocol");
             baseUrl = baseUrl(host, portStr, protocol);
             clientUrl = clientUrl(baseUrl);
             final InputStream inputStream = startJobOnClient(grabbitJson, env, clientUrl);
@@ -133,10 +136,10 @@ public class GrabbitCli {
         // the output from starting a job looks like "[123,125]"
         final Matcher matcher = JOB_IDS_PATTERN.matcher(output);
         if (matcher.matches()) {
-            final String jobIdsStr = (String)matcher.group("jobIds");
+            final String jobIdsStr = (@NonNull String)matcher.group("jobIds");
             final List<String> jobIds = Arrays.stream(jobIdsStr.split(",")).
                 map(String::trim).
-                collect(Collectors.toList());
+                collect(Collectors.<@NonNull String>toList());
 
             jobIds.forEach(jobId -> writeOutJobId(jobIdsWriter, baseUrl, jobId));
             if (!monitor) {
@@ -181,7 +184,7 @@ public class GrabbitCli {
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("PUT");
         httpCon.setRequestProperty("Content-Type", "application/json");
-        setBasicAuth(httpCon, (String)env.get("username"), (String)env.get("password"));
+        setBasicAuth(httpCon, (@NonNull String)env.get("username"), (@NonNull String)env.get("password"));
 
         final FileInputStream fileInputStream = new FileInputStream(grabbitJson);
         copy(fileInputStream, httpCon.getOutputStream());
@@ -202,7 +205,7 @@ public class GrabbitCli {
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("GET");
         // httpCon.setRequestProperty("Content-Type", "application/json");
-        setBasicAuth(httpCon, (String)env.get("username"), (String)env.get("password"));
+        setBasicAuth(httpCon, (@NonNull String)env.get("username"), (@NonNull String)env.get("password"));
         return new BufferedInputStream(httpCon.getInputStream());
     }
 
@@ -280,13 +283,13 @@ public class GrabbitCli {
 
             @SuppressWarnings("unchecked")
             List<Map<String, ?>> jobResultMaps = jobResultStrs.stream().
-                map(jobResultStr -> (Map<String, Object>)new Yaml().loadAs(jobResultStr, Map.class)).
-                collect(Collectors.toList());
+                <@NonNull Map<String, ?>>map(jobResultStr -> (Map<String, Object>)new Yaml().loadAs(jobResultStr, Map.class)).
+                collect(Collectors.<@NonNull Map<String, ?>>toList());
 
             final List<Map<String, ?>> completedJobs = jobResultMaps.stream().
                 filter(GrabbitCli::jobIsCompleted).
-                peek(jobMap -> updateFile(file, jobMap.get("jobExecutionId") + ",RUNNING", jobMap.get("jobExecutionId") + ",COMPLETE")).
-                collect(Collectors.toList());
+                peek(jobMap -> updateFile(file, (@Regex String)jobMap.get("jobExecutionId") + ",RUNNING", (@Regex String)jobMap.get("jobExecutionId") + ",COMPLETE")).
+                collect(Collectors.<@NonNull Map<String, ?>>toList());
 
             if (!completedJobs.isEmpty()) {
                 System.out.println("\n====================== COMPLETED =====================");
@@ -295,8 +298,8 @@ public class GrabbitCli {
 
             final List<Map<String, ?>> failedJobs = jobResultMaps.stream().
                 filter(GrabbitCli::jobIsFailed).
-                peek(jobMap -> updateFile(file, jobMap.get("jobExecutionId") + ",RUNNING", jobMap.get("jobExecutionId") + ",FAILED")).
-                collect(Collectors.toList());
+                peek(jobMap -> updateFile(file, (@Regex String)jobMap.get("jobExecutionId") + ",RUNNING", (@Regex String)jobMap.get("jobExecutionId") + ",FAILED")).
+                collect(Collectors.<@NonNull Map<String, ?>>toList());
 
             if (!failedJobs.isEmpty()) {
                 System.out.println("\n======================= FAILED =======================");
@@ -305,7 +308,7 @@ public class GrabbitCli {
 
             final List<Map<String, ?>> runningJobs = jobResultMaps.stream().
                 filter(GrabbitCli::jobIsRunning).
-                collect(Collectors.toList());
+                collect(Collectors.<@NonNull Map<String, ?>>toList());
 
             if (!runningJobs.isEmpty()) {
                 System.out.println("\n====================== RUNNING =======================");
@@ -339,25 +342,25 @@ public class GrabbitCli {
 
     private static boolean jobIsRunning(Map<String, ?> jobMap) {
         return jobMap.containsKey("exitStatus") &&
-            Objects.equals(Boolean.TRUE, ((Map)jobMap.get("exitStatus")).get("running"));
+            Objects.equals(Boolean.TRUE, ((@NonNull Map)jobMap.get("exitStatus")).get("running"));
     }
 
 
     private static boolean jobIsCompleted(Map<String, ?> jobMap) {
         return jobMap.containsKey("exitStatus") &&
-            Objects.equals(Boolean.FALSE, ((Map)jobMap.get("exitStatus")).get("running")) &&
-            Objects.equals("COMPLETED", ((Map)jobMap.get("exitStatus")).get("exitCode"));
+            Objects.equals(Boolean.FALSE, ((@NonNull Map)jobMap.get("exitStatus")).get("running")) &&
+            Objects.equals("COMPLETED", ((@NonNull Map)jobMap.get("exitStatus")).get("exitCode"));
     }
 
 
     private static boolean jobIsFailed(Map<String, ?> jobMap) {
         return jobMap.containsKey("exitStatus") &&
-            Objects.equals(Boolean.FALSE, ((Map)jobMap.get("exitStatus")).get("running")) &&
-            Objects.equals("FAILED", ((Map)jobMap.get("exitStatus")).get("exitCode"));
+            Objects.equals(Boolean.FALSE, ((@NonNull Map)jobMap.get("exitStatus")).get("running")) &&
+            Objects.equals("FAILED", ((@NonNull Map)jobMap.get("exitStatus")).get("exitCode"));
     }
 
 
-    public static void updateFile(File file, String patternToFind, String patternToReplace) {
+    public static void updateFile(File file, @Regex String patternToFind, @Regex String patternToReplace) {
         final Path path = file.toPath();
         try {
             final List<String> lines = Files.readAllLines(path);
@@ -387,8 +390,8 @@ public class GrabbitCli {
         System.out.println("job: " + job.get("jobExecutionId"));
         System.out.println("startTime: " + job.get("startTime"));
         System.out.println("path: " + job.get("path"));
-        System.out.println("status: " + ((Map)job.get("exitStatus")).get("exitCode"));
-        System.out.println("running: " + ((Map)job.get("exitStatus")).get("running"));
+        System.out.println("status: " + ((@NonNull Map)job.get("exitStatus")).get("exitCode"));
+        System.out.println("running: " + ((@NonNull Map)job.get("exitStatus")).get("running"));
         System.out.println("timeTaken: " + job.get("timeTaken"));
         System.out.println("jcrNodesWritten: " + job.get("jcrNodesWritten"));
         System.out.println("---");

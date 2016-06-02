@@ -72,6 +72,13 @@ There is https://github.com/TWCable/grabbit-cli/issues/7[a feature request to be
 
 https://twcable.github.io/grabbit-cli/docs/groovydoc/
 
+=== Checker Framework
+
+This uses the http://types.cs.washington.edu/checker-framework/[Checker Framework] to add much better type checking
+(including making the use of `null` actually safe and useful).
+
+There are no runtime implications (besides safer code).
+
 === Releasing
 
 ```shell
