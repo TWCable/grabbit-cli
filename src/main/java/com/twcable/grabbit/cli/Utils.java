@@ -13,26 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.twcable.grabbit.cli
+package com.twcable.grabbit.cli;
 
-class ThreadedStreamProcessor extends Thread {
-    InputStream inputStream
-    def output = []
+class Utils {
 
-
-    ThreadedStreamProcessor(InputStream inputStream) {
-        this.inputStream = inputStream
+    /**
+     * Remove checked-ness from the exception. The same exception is still thrown (checked or unchecked), but this
+     * removes the compiler's checks.
+     */
+    @SuppressWarnings("RedundantTypeArguments")
+    public static <T extends Throwable> void throwSoft(T exp) {
+        throw Utils.<RuntimeException>uncheck(exp);
     }
 
 
-    public void run() {
-        this.inputStream.eachLine {
-            output.add("$it")
-        }
+    @SuppressWarnings("unchecked")
+    private static <T extends Throwable> T uncheck(Throwable throwable) throws T {
+        throw (T)throwable;
     }
 
-
-    def getOutput() {
-        return output
-    }
 }
