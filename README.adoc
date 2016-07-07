@@ -2,12 +2,15 @@
 :toc:
 :toc-placement!:
 
+image::https://api.bintray.com/packages/twcable/aem/grabbit-cli/images/download.svg[link="https://bintray.com/twcable/aem/grabbit-cli/_latestVersion"]
+
 toc::[]
 
 == Description
 
 This script starts and monitors a Grabbit content sync.
 
+image::https://api.bintray.com/packages/twcable/aem/grabbit-cli/images/download.svg[link="https://bintray.com/twcable/aem/grabbit-cli/_latestVersion"]
 https://waffle.io/TWCable/grabbit-cli[image:https://badge.waffle.io/TWCable/grabbit-cli.png?label=ready&title=Ready[Stories
 in Ready]]
 
@@ -21,13 +24,12 @@ package from bintray: https://bintray.com/twcable/aem/Grabbit/view#files
 See https://github.com/TWCable/grabbit[the Grabbit project page for more information].
 
 Finally, the distributed binaries are self-executing Java programs (thanks http://www.capsule.io/[to the awesome
-Capsule packager]). The only requirement is that you have the Java 7+ runtime installed.
+Capsule packager]). The only requirement is that you have the Java 8+ runtime installed.
 
 
 === Running
 
-First, either download the binary from https://bintray.com/twcable/aem/grabbit-cli/view#files/bin , or clone this repository and build it yourself with `./gradlew`.
-(The binaries will be in `build/libs/`) The file will be named `grabbit-cli-${version}` 
+Download the binary from image:https://api.bintray.com/packages/twcable/aem/grabbit-cli/images/download.svg[link="https://bintray.com/twcable/aem/grabbit-cli/_latestVersion"] 
 
 For the instructions below, assuming that you've renamed the binary you chose to `grabbit-cli`:
 
