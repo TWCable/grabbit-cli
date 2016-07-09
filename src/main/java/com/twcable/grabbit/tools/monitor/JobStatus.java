@@ -17,7 +17,6 @@ package com.twcable.grabbit.tools.monitor;
 
 import lombok.Value;
 import lombok.val;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
@@ -41,7 +40,6 @@ import static java.util.Collections.emptyMap;
     "PMD.CommentDefaultAccessModifier", "RedundantCast"})
 public class JobStatus {
 
-    @SuppressWarnings("WeakerAccess")
     public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ssxx");
 
     URI uri;
@@ -62,18 +60,18 @@ public class JobStatus {
         val json = (jsonStr == null || jsonStr.trim().isEmpty()) ? "{}" : jsonStr;
 
         val map = (Map<String, Object>)new Yaml().loadAs(json, Map.class);
-        val transactionId = (@NonNull Long)map.getOrDefault("transactionID", -1L);
-        val jobExecutionId = (@NonNull Long)map.getOrDefault("jobExecutionId", -1L);
+        val transactionId = (Long)map.getOrDefault("transactionID", -1L);
+        val jobExecutionId = (Long)map.getOrDefault("jobExecutionId", -1L);
         val startTimeStr = (String)map.getOrDefault("startTime", DATE_TIME_FORMATTER.format(now()));
         val startTime = OffsetDateTime.parse(startTimeStr, DATE_TIME_FORMATTER);
         val endTimeStr = (String)map.get("endTime");
         val endTime = (endTimeStr != null) ?
             OffsetDateTime.parse(endTimeStr, DATE_TIME_FORMATTER) : (OffsetDateTime)null;
-        val path = (@NonNull String)map.getOrDefault("path", "/MISSING_PATH");
-        val existStatusMap = (@NonNull Map<String, Object>)map.getOrDefault("exitStatus", emptyMap());
-        val exitDescription = (@NonNull String)existStatusMap.getOrDefault("exitDescription", "");
-        val exitCode = (@NonNull String)existStatusMap.getOrDefault("exitCode", "UNKNOWN");
-        val running = (@NonNull Boolean)existStatusMap.getOrDefault("running", Boolean.FALSE);
+        val path = (String)map.getOrDefault("path", "/MISSING_PATH");
+        val existStatusMap = (Map<String, Object>)map.getOrDefault("exitStatus", emptyMap());
+        val exitDescription = (String)existStatusMap.getOrDefault("exitDescription", "");
+        val exitCode = (String)existStatusMap.getOrDefault("exitCode", "UNKNOWN");
+        val running = (Boolean)existStatusMap.getOrDefault("running", Boolean.FALSE);
         val timeTaken = Long.valueOf(map.getOrDefault("timeTaken", -1L).toString());
         val jcrNodesWritten = Long.parseLong(map.getOrDefault("jcrNodesWritten", -1L).toString());
 

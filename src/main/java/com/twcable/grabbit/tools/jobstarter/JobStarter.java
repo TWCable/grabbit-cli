@@ -29,7 +29,6 @@ import reactor.core.publisher.WorkQueueProcessor;
 
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -63,13 +62,16 @@ public class JobStarter {
 
     /**
      * Start the jobs on the Grabbit clients, returning the hosts and the jobs ids.
-     *
-     * @throws IOException if it can't create the cache file
      */
-    public Publisher<HostAndJobIds> startJobs() throws IOException {
+    public Publisher<HostAndJobIds> startJobs() {
         return Flux.fromIterable(hosts).
-            map(hostInfo ->
-                new HostAndJobIds(hostInfo.baseUri(), startJobs(hostInfo.baseUri(), hostInfo.credentials())));
+            map(this::startJobsForHost);
+    }
+
+
+    private HostAndJobIds startJobsForHost(HostInfo hostInfo) {
+        val jobIds = startJobsOnHost(hostInfo.baseUri(), hostInfo.credentials());
+        return new HostAndJobIds(hostInfo.baseUri(), jobIds);
     }
 
 
@@ -78,8 +80,8 @@ public class JobStarter {
      *
      * @throws IOException if it can't create the cache file
      */
-    public static Publisher<HostAndJobIds> startJobs(JobsConfigFileReader jobsConfigFileReader,
-                                                     Iterable<@NonNull HostInfo> hosts) throws IOException {
+    public static Publisher<HostAndJobIds> startJobsForHosts(JobsConfigFileReader jobsConfigFileReader,
+                                                             Iterable<@NonNull HostInfo> hosts) throws IOException {
         return new JobStarter(jobsConfigFileReader, hosts).startJobs();
     }
 
@@ -91,23 +93,27 @@ public class JobStarter {
      * @param baseUri     the URI of the Grabbit client host to connect to
      * @param credentials the credentials to use to create the jobs
      */
-    private Publisher<Long> startJobs(final URI baseUri, UsernameAndPassword credentials) {
+    private Publisher<Long> startJobsOnHost(final URI baseUri, UsernameAndPassword credentials) {
         final Processor<Long, Long> processor = WorkQueueProcessor.share(executorService);
 
-        executorService.execute(() -> {
-            try {
-                final URL clientUrl = grabbitClientUrl(baseUri);
-                final InputStream inputStream = startJobOnClient(clientUrl, credentials);
-                final String output = Utils.toString(inputStream).trim();
-
-                parseStartJobsOutput(output, processor);
-            }
-            catch (IOException e) {
-                processor.onError(e);
-            }
-        });
+        executorService.execute(() -> startJobsOnHostWithSubscriber(processor, baseUri, credentials));
 
         return processor;
+    }
+
+
+    private void startJobsOnHostWithSubscriber(Subscriber<Long> jobIdSubscriber, URI baseUri,
+                                               UsernameAndPassword credentials) {
+        try {
+            val clientUrl = grabbitClientUrl(baseUri);
+            val inputStream = startJobOnClient(clientUrl, credentials);
+            val output = Utils.toString(inputStream).trim();
+
+            parseStartJobsOutput(output, jobIdSubscriber);
+        }
+        catch (IOException e) {
+            jobIdSubscriber.onError(e);
+        }
     }
 
 
@@ -121,7 +127,7 @@ public class JobStarter {
         // the output from starting a job looks like "[123,125]"
         val matcher = JOB_IDS_PATTERN.matcher(startJobsOutput);
         if (matcher.matches()) {
-            final String jobIdsStr = (@NonNull String)matcher.group("jobIds");
+            val jobIdsStr = (@NonNull String)matcher.group("jobIds");
             Arrays.stream(jobIdsStr.split(",")).
                 map(String::trim).
                 map(Long::valueOf).

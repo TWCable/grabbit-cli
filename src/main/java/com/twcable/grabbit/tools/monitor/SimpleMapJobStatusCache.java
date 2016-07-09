@@ -16,8 +16,6 @@
 package com.twcable.grabbit.tools.monitor;
 
 import lombok.val;
-import org.checkerframework.checker.nullness.qual.EnsuresNonNull;
-import org.checkerframework.checker.nullness.qual.MonotonicNonNull;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
@@ -32,21 +30,16 @@ import java.util.stream.Collectors;
  */
 @SuppressWarnings("WeakerAccess")
 public class SimpleMapJobStatusCache implements JobStatusCache {
-    @MonotonicNonNull
     protected Collection<HostJobState> hostJobStates;
 
 
-    private static boolean match(HostJobState entry1, HostJobState entry2) {
-        return entry1.location().equals(entry2.location()) && entry1.jobId() == entry2.jobId();
+    public SimpleMapJobStatusCache() {
+        hostJobStates = new ArrayList<>();
     }
 
 
     @Override
-    @EnsuresNonNull("hostJobStates")
     public Collection<HostJobState> entries() {
-        if (hostJobStates == null) {
-            hostJobStates = new ArrayList<>();
-        }
         return hostJobStates;
     }
 
@@ -57,9 +50,10 @@ public class SimpleMapJobStatusCache implements JobStatusCache {
      * @return null if it's a new location/jobId combination
      */
     @Override
-    @EnsuresNonNull("hostJobStates")
     public @Nullable HostJobState put(HostJobState entry) {
-        val existing = entries().stream().filter(e -> match(e, entry)).findAny().orElse(null);
+        val existing = entries().stream().
+            filter(e -> match(e, entry)).
+            findAny().orElse(null);
 
         // if nothing would change, there's no point in rewriting the collection and persisting the non-change
         if (existing == null || !existing.state().equals(entry.state())) {
@@ -75,6 +69,11 @@ public class SimpleMapJobStatusCache implements JobStatusCache {
         }
 
         return existing;
+    }
+
+
+    private static boolean match(HostJobState entry1, HostJobState entry2) {
+        return entry1.location().equals(entry2.location()) && entry1.jobId() == entry2.jobId();
     }
 
 }

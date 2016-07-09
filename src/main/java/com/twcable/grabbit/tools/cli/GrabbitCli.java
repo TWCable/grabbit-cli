@@ -65,17 +65,17 @@ public final class GrabbitCli {
 
     /**
      * Entry point for the command line arguments.
-     * <p>
+     *
      * [plantuml]
      * ....
      * start
      * :CliOptions.create(argv);
      * if (Either(error message, CliOptions)) then (error message)
-     * :print error message to STDERR;
-     * end
+     *     :print error message to STDERR;
+     *     end
      * else (CliOptions)
-     * :run(cliOptions);
-     * stop
+     *     :run(cliOptions);
+     *     stop
      * endif
      * ....
      *
@@ -98,6 +98,8 @@ public final class GrabbitCli {
                 e.printStackTrace(System.err);
                 System.exit(1);
             }
+
+            // for some reason Capsule doesn't seem to want to end without this
             System.exit(0);
         }
         else {
@@ -109,20 +111,20 @@ public final class GrabbitCli {
 
     /**
      * Runs the appropriate process(es) for the command line options.
-     * <p>
+     *
      * Output from the processes are sent to STDOUT.
-     * <p>
+     *
      * [plantuml]
      * ....
      * :CliOptions.create(argv);
      * if (start) then (true)
-     * if (monitor) then (true)
-     * :startWithMonitor(..);
+     *     if (monitor) then (true)
+     *         :startWithMonitor(..);
+     *     else (false)
+     *         :startWithNoMonitor(..);
+     *     endif
      * else (false)
-     * :startWithNoMonitor(..);
-     * endif
-     * else (false)
-     * :monitorJobs(..);
+     *     :monitorJobs(..);
      * endif
      * ....
      *
@@ -231,7 +233,7 @@ public final class GrabbitCli {
     /**
      * Using the provided configuration files, start jobs and publish the results.
      *
-     * @see JobStarter#startJobs(JobsConfigFileReader, Iterable)
+     * @see JobStarter#startJobsForHosts(JobsConfigFileReader, Iterable)
      */
     public static Publisher<HostAndJobIds> startJobs(String envConfFile, String environmentName,
                                                      String jobsConfFile) throws IOException {
@@ -240,7 +242,7 @@ public final class GrabbitCli {
         val jobsConfigFileReader = jobsConfigFileReader(jobsConfFile);
         val hosts = hosts(env, jobsConfigFileReader);
 
-        return JobStarter.startJobs(jobsConfigFileReader, hosts);
+        return JobStarter.startJobsForHosts(jobsConfigFileReader, hosts);
     }
 
 
