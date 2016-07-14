@@ -31,6 +31,13 @@ Capsule packager]). The only requirement is that you have the Java 8+ runtime in
 
 Download the binary from image:https://api.bintray.com/packages/twcable/aem/grabbit-cli/images/download.svg[link="https://bintray.com/twcable/aem/grabbit-cli/_latestVersion"] 
 
+[NOTE]
+--
+If you're running on Windows, you need to put `java -jar` in front of `grabbit-cli`.
+
+e.g., `java -jar grabbit-cli -h`
+--
+
 For the instructions below, assuming that you've renamed the binary you chose to `grabbit-cli`:
 
 (If you downloaded the file from BinTray, you may need to set the execute bit on it first to use on a *nix system: `chmod u+x grabbit-cli`)
